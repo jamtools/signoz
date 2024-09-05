@@ -64,4 +64,4 @@ services:
     ports:
       - "3301:3301"
     volumes:
-      - ../common/nginx-config.conf:/etc/nginx/conf.d/default.conf
+      - ./deploy/docker/common/nginx-config.conf:/etc/nginx/conf.d/default.conf
