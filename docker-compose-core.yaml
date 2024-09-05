@@ -153,4 +153,4 @@ services:
       QUIET_MODE: "${QUIET_MODE:-false}"
       LOCUST_OPTS: "--headless -u 10 -r 1"
     volumes:
-      - ../common/locust-scripts:/locust
+      - ./deploy/docker/common/locust-scripts:/locust
