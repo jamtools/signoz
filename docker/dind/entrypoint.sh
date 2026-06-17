@@ -3,11 +3,11 @@ set -Eeuo pipefail
 
 : "${SIGNOZ_GIT_REPO:=https://github.com/jamtools/signoz.git}"
 : "${SIGNOZ_GIT_REF:=main}"
-: "${SIGNOZ_COMPOSE_PATH:=docker-compose.yaml}"
+: "${SIGNOZ_COMPOSE_PATH:=deploy/docker/docker-compose.yaml}"
 : "${SIGNOZ_WORKDIR:=/opt/signoz/repo}"
 : "${SIGNOZ_ZOOKEEPER_IMAGE:=zookeeper:3.7.2}"
 : "${SIGNOZ_START_MODE:=full}"
-: "${SIGNOZ_INGEST_SERVICES:=zookeeper-1 clickhouse otel-collector-migrator query-service otel-collector}"
+: "${SIGNOZ_INGEST_SERVICES:=zookeeper-1 clickhouse signoz-telemetrystore-migrator otel-collector}"
 : "${SIGNOZ_IDLE_SHUTDOWN_ENABLED:=false}"
 : "${SIGNOZ_IDLE_SHUTDOWN_SECONDS:=1200}"
 : "${SIGNOZ_IDLE_CHECK_INTERVAL_SECONDS:=30}"
@@ -224,7 +224,7 @@ esac
 log "SigNoz compose stack is starting"
 compose ps
 if [[ "$SIGNOZ_START_MODE" == "full" ]]; then
-  log "UI should be available through the outer container port mapping, typically http://localhost:3301"
+  log "UI should be available through the outer container port mapping, typically http://localhost:8080"
 else
   log "ingest-only mode keeps UI/frontend services stopped unless an external lifecycle controller starts full mode"
 fi

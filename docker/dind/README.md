@@ -6,16 +6,18 @@ that runs the platform/global SigNoz instance.
 
 Default runtime behavior:
 
+The default compose path follows current upstream SigNoz: `deploy/docker/docker-compose.yaml`.
+
 - clone `https://github.com/jamtools/signoz.git`
 - checkout `main`
-- patch stale `bitnami/zookeeper:3.7.1` to `${SIGNOZ_ZOOKEEPER_IMAGE:-zookeeper:3.7.2}`
-- run `docker compose -f docker-compose.yaml up -d --remove-orphans`
+- patch stale legacy `bitnami/zookeeper:3.7.1` only when that image appears in the selected compose file
+- run `docker compose -f deploy/docker/docker-compose.yaml up -d --remove-orphans`
 
 Example local run:
 
 ```bash
 docker run --privileged --rm \
-  -p 3301:3301 \
+  -p 8080:8080 \
   -p 4317:4317 \
   -p 4318:4318 \
   -v signoz-dind-docker:/var/lib/docker \
@@ -37,14 +39,13 @@ should remain always on and must not depend on cold-start behavior.
 queued telemetry by default:
 
 ```text
-zookeeper-1 clickhouse otel-collector-migrator query-service otel-collector
+zookeeper-1 clickhouse signoz-telemetrystore-migrator otel-collector
 ```
 
 Override `SIGNOZ_INGEST_SERVICES` if the compose file changes. Ingest-only mode
-does not start the frontend, alertmanager, or logspout unless they are listed.
-The query service remains part of the backend dependency chain because the
-collector waits for it in the current compose file, but it is not published by
-the outer container unless the host maps its port.
+does not start the upstream `signoz` UI/API service unless it is listed. The
+collector can drain to ClickHouse after ClickHouse and the telemetrystore migrator
+are healthy, so UI/API startup remains optional for ingest-only wake.
 
 ## Safe idle shutdown guard
 

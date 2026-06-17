@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - vk/signoz-ghcr-image
+      - vk/signoz-upstream-dind
     paths:
       - .github/workflows/ghcr-signoz-dind.yml
       - docker/dind/**

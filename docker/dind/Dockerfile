@@ -9,11 +9,11 @@ RUN chmod 0755 /usr/local/bin/signoz-dind-entrypoint.sh
 
 ENV SIGNOZ_GIT_REPO=https://github.com/jamtools/signoz.git \
     SIGNOZ_GIT_REF=main \
-    SIGNOZ_COMPOSE_PATH=docker-compose.yaml \
+    SIGNOZ_COMPOSE_PATH=deploy/docker/docker-compose.yaml \
     SIGNOZ_WORKDIR=/opt/signoz/repo \
     SIGNOZ_ZOOKEEPER_IMAGE=zookeeper:3.7.2 \
     SIGNOZ_START_MODE=full \
-    SIGNOZ_INGEST_SERVICES="zookeeper-1 clickhouse otel-collector-migrator query-service otel-collector" \
+    SIGNOZ_INGEST_SERVICES="zookeeper-1 clickhouse signoz-telemetrystore-migrator otel-collector" \
     SIGNOZ_IDLE_SHUTDOWN_ENABLED=false \
     SIGNOZ_IDLE_SHUTDOWN_SECONDS=1200 \
     SIGNOZ_IDLE_CHECK_INTERVAL_SECONDS=30 \
@@ -26,6 +26,6 @@ ENV SIGNOZ_GIT_REPO=https://github.com/jamtools/signoz.git \
 
 VOLUME ["/var/lib/docker", "/opt/signoz"]
 
-EXPOSE 3301 4317 4318 24224 2181 8123 9000
+EXPOSE 8080 4317 4318 2181 8123 9000
 
 ENTRYPOINT ["/usr/local/bin/signoz-dind-entrypoint.sh"]

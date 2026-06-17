@@ -8,6 +8,7 @@ explicitly dropped.
 Last audited on: 2026-06-17
 
 Audited branch: `vk/signoz-ghcr-image`
+Upstream update branch: `vk/signoz-upstream-dind`
 Audited head: `5c05f0e3439d564b9ebea1a84ae4cf61c0c59a49`
 Upstream reference: `upstream/main` at `03796f012ff5bc3ae5d1b7954a09dc4477e668a4`
 Ahead/behind at audit time: 20 commits ahead, 2809 commits behind.
