@@ -1,0 +1,66 @@
+name: Publish SigNoz DIND image to GHCR
+
+on:
+  push:
+    branches:
+      - main
+      - vk/signoz-ghcr-image
+    paths:
+      - .github/workflows/ghcr-signoz-dind.yml
+      - docker/dind/**
+  workflow_dispatch:
+    inputs:
+      push_image:
+        description: Push the built image to GHCR
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: signoz-dind-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.push_image }}
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate image metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/signoz-dind
+          tags: |
+            type=sha,prefix=git-
+            type=ref,event=branch
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+
+      - name: Build and optionally push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/dind/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'workflow_dispatch' || inputs.push_image }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

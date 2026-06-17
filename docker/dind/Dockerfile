@@ -1,0 +1,22 @@
+# Runs a SigNoz Docker Compose checkout inside Docker-in-Docker.
+# The container is intended for a dedicated, privileged platform SigNoz host.
+FROM docker:28.5.2-dind
+
+RUN apk add --no-cache bash git ca-certificates curl
+
+COPY docker/dind/entrypoint.sh /usr/local/bin/signoz-dind-entrypoint.sh
+RUN chmod 0755 /usr/local/bin/signoz-dind-entrypoint.sh
+
+ENV SIGNOZ_GIT_REPO=https://github.com/jamtools/signoz.git \
+    SIGNOZ_GIT_REF=main \
+    SIGNOZ_COMPOSE_PATH=docker-compose.yaml \
+    SIGNOZ_WORKDIR=/opt/signoz/repo \
+    SIGNOZ_ZOOKEEPER_IMAGE=zookeeper:3.7.2 \
+    DOCKER_TLS_CERTDIR= \
+    DOCKER_HOST=unix:///var/run/docker.sock
+
+VOLUME ["/var/lib/docker", "/opt/signoz"]
+
+EXPOSE 3301 4317 4318 24224 2181 8123 9000
+
+ENTRYPOINT ["/usr/local/bin/signoz-dind-entrypoint.sh"]
