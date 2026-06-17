@@ -14,6 +14,7 @@ ENV SIGNOZ_GIT_REPO=https://github.com/jamtools/signoz.git \
     SIGNOZ_ZOOKEEPER_IMAGE=zookeeper:3.7.2 \
     SIGNOZ_START_MODE=full \
     SIGNOZ_INGEST_SERVICES="zookeeper-1 clickhouse signoz-telemetrystore-migrator otel-collector" \
+    SIGNOZ_DISABLE_OPAMP=true \
     SIGNOZ_IDLE_SHUTDOWN_ENABLED=false \
     SIGNOZ_IDLE_SHUTDOWN_SECONDS=1200 \
     SIGNOZ_IDLE_CHECK_INTERVAL_SECONDS=30 \
