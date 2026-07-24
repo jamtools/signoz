@@ -10,8 +10,7 @@ The default compose path follows current upstream SigNoz: `deploy/docker/docker-
 
 - clone `https://github.com/jamtools/signoz.git`
 - checkout `main`
-- patch stale legacy `bitnami/zookeeper:3.7.1` only when that image appears in the selected compose file
-- disable the upstream OpAMP manager override by default so the checked-in collector config exposes OTLP on `4317`/`4318`
+- use the checked-in compose config directly; it starts the collector from the file-based config so OTLP is exposed on `4317`/`4318`
 - run `docker compose -f deploy/docker/docker-compose.yaml up -d --remove-orphans`
 
 Example local run:
@@ -67,16 +66,11 @@ when the outer container restart policy will not immediately recreate a stopped
 backend.
 
 
-## Collector OpAMP behavior
+## Collector config behavior
 
-`SIGNOZ_DISABLE_OPAMP=true` is the DIND default. Current upstream compose starts
-the collector with `--manager-config`/`--copy-path`, which lets the SigNoz OpAMP
-server replace the file-based collector config. In a fresh DIND deployment that
-default OpAMP config can start only health/pprof extensions, leaving OTLP `4317`
-and `4318` closed even though Docker publishes them. The DIND image patches those
-manager flags out by default so the repository `otel-collector-config.yaml` is
-used directly and the OTLP receivers are available for executor readiness and
-ingest smoke tests.
-
-Set `SIGNOZ_DISABLE_OPAMP=false` only when you specifically want to validate the
-upstream OpAMP-managed collector behavior.
+The Docker compose files start `signoz-otel-collector` directly with
+`--config=/etc/otel-collector-config.yaml`. We intentionally do not pass the
+OpAMP manager `--manager-config`/`--copy-path` flags in the self-hosted compose
+path because a fresh DIND deployment can otherwise report UI health while the
+collector has not opened OTLP `4317`/`4318`. Keeping this behavior in the compose
+files means the DIND entrypoint does not need runtime `sed` patches.

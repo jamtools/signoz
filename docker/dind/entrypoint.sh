@@ -5,10 +5,8 @@ set -Eeuo pipefail
 : "${SIGNOZ_GIT_REF:=main}"
 : "${SIGNOZ_COMPOSE_PATH:=deploy/docker/docker-compose.yaml}"
 : "${SIGNOZ_WORKDIR:=/opt/signoz/repo}"
-: "${SIGNOZ_ZOOKEEPER_IMAGE:=zookeeper:3.7.2}"
 : "${SIGNOZ_START_MODE:=full}"
 : "${SIGNOZ_INGEST_SERVICES:=zookeeper-1 clickhouse signoz-telemetrystore-migrator otel-collector}"
-: "${SIGNOZ_DISABLE_OPAMP:=true}"
 : "${SIGNOZ_IDLE_SHUTDOWN_ENABLED:=false}"
 : "${SIGNOZ_IDLE_SHUTDOWN_SECONDS:=1200}"
 : "${SIGNOZ_IDLE_CHECK_INTERVAL_SECONDS:=30}"
@@ -199,15 +197,6 @@ if [[ ! -f "$compose_file" ]]; then
   exit 1
 fi
 
-if grep -q 'bitnami/zookeeper:3.7.1' "$compose_file"; then
-  log "patching stale upstream zookeeper image to $SIGNOZ_ZOOKEEPER_IMAGE"
-  sed -i "s#bitnami/zookeeper:3.7.1#$SIGNOZ_ZOOKEEPER_IMAGE#g" "$compose_file"
-fi
-
-if bool_true "$SIGNOZ_DISABLE_OPAMP"; then
-  log "disabling SigNoz OpAMP manager override so the file-based collector config exposes OTLP receivers"
-  sed -i 's# --manager-config=/etc/manager-config.yaml --copy-path=/var/tmp/collector-config.yaml##g' "$compose_file"
-fi
 
 log "starting SigNoz compose stack from $compose_file"
 cd "$(dirname "$compose_file")"
